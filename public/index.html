@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Meteoritos - Pipeline CI/CD</title>
+    <style>
+        :root {
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --primary: #2b6cb0;
+            --primary-light: #ebf8ff;
+            --accent: #319795;
+            --warning-bg: #fffaf0;
+            --warning-border: #dd6b20;
+            --warning-text: #9c4221;
+            --border-color: #e2e8f0;
+            --badge-fell: #e53e3e;
+            --badge-found: #3182ce;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.6;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid var(--primary);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .header-meta span strong {
+            color: var(--text-main);
+        }
+
+        .alert-banner {
+            background-color: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 0.85rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .grid-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .kpi-subtext {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.25rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chart-container {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background-color: #edf2f7;
+            color: #4a5568;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+
+        tr:hover {
+            background-color: #ebf8ff;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        code {
+            background-color: #edf2f7;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #805ad5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 12px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .badge-fell {
+            background-color: var(--badge-fell);
+        }
+
+        .badge-found {
+            background-color: var(--badge-found);
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer .commit-tag {
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.75rem;
+            }
+
+            header {
+                padding: 1.25rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado Principal -->
+        <header>
+            <h1>Portal de Análisis de Meteoritos</h1>
+            <div class="header-meta">
+                <span><strong>Estudiante:</strong> Estudiante de Ingeniería de Software</span>
+                <span><strong>Fuente de datos:</strong> NASA / The Meteoritical Society</span>
+            </div>
+            <div class="alert-banner">
+                <strong>Aviso:</strong> Este portal contiene modificaciones simuladas con fines educativos como parte de un pipeline automatizado de CI/CD.
+            </div>
+        </header>
+
+        <!-- Indicadores Clave (KPIs) -->
+        <section class="grid-kpis">
+            <div class="kpi-card">
+                <div class="kpi-title">Total de Registros</div>
+                <div class="kpi-value">20,000</div>
+                <div class="kpi-subtext">Meteoritos catalogados en el archivo</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Estado: Fell / Found</div>
+                <div class="kpi-value">1,107 <span style="font-size: 1rem; color: var(--text-muted);">/</span> 18,893</div>
+                <div class="kpi-subtext">Fell (vistos caer) vs Found (hallados)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Masa Media</div>
+                <div class="kpi-value">21,876.99 <span style="font-size: 1rem;">g</span></div>
+                <div class="kpi-subtext">Calculada ignorando valores nulos</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Sin Información de Masa</div>
+                <div class="kpi-value">70</div>
+                <div class="kpi-subtext">Registros con masa nula o no reportada</div>
+            </div>
+        </section>
+
+        <!-- Gráfico de Clasificaciones -->
+        <section class="section-card">
+            <div class="section-title">
+                Distribución de las 10 Clasificaciones más Frecuentes
+            </div>
+            <div class="chart-container">
+                <img src="grafico_clases.png" alt="Gráfico de las 10 clasificaciones más frecuentes">
+            </div>
+        </section>
+
+        <!-- Ranking: Top 10 Meteoritos de Mayor Masa -->
+        <section class="section-card">
+            <div class="section-title">
+                Top 10 Meteoritos de Mayor Masa
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">Posición</th>
+                            <th>Nombre</th>
+                            <th>Clasificación</th>
+                            <th class="text-right">Masa</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Año</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr><td class='text-center'><strong>#1</strong></td><td><strong>Hoba</strong></td><td><code>Iron, IVB</code></td><td class='text-right'>60,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1920</td></tr>
+<tr><td class='text-center'><strong>#2</strong></td><td><strong>Cape York</strong></td><td><code>Iron, IIIAB</code></td><td class='text-right'>58,200,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1818</td></tr>
+<tr><td class='text-center'><strong>#3</strong></td><td><strong>Campo del Cielo</strong></td><td><code>Iron, IAB-MG</code></td><td class='text-right'>50,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1575</td></tr>
+<tr><td class='text-center'><strong>#4</strong></td><td><strong>Canyon Diablo</strong></td><td><code>Iron, IAB-MG</code></td><td class='text-right'>30,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1891</td></tr>
+<tr><td class='text-center'><strong>#5</strong></td><td><strong>Armanty</strong></td><td><code>Iron, IIIE</code></td><td class='text-right'>28,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1898</td></tr>
+<tr><td class='text-center'><strong>#6</strong></td><td><strong>Gibeon</strong></td><td><code>Iron, IVA</code></td><td class='text-right'>26,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1836</td></tr>
+<tr><td class='text-center'><strong>#7</strong></td><td><strong>Chupaderos</strong></td><td><code>Iron, IIIAB</code></td><td class='text-right'>24,300,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1852</td></tr>
+<tr><td class='text-center'><strong>#8</strong></td><td><strong>Sikhote-Alin</strong></td><td><code>Iron, IIAB</code></td><td class='text-right'>23,000,000.00 g</td><td class='text-center'><span class='badge badge-fell'>Fell</span></td><td class='text-center'>1947</td></tr>
+<tr><td class='text-center'><strong>#9</strong></td><td><strong>Bacubirito</strong></td><td><code>Iron, ungrouped</code></td><td class='text-right'>22,000,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1863</td></tr>
+<tr><td class='text-center'><strong>#10</strong></td><td><strong>Cranbourne</strong></td><td><code>Iron, IAB-MG</code></td><td class='text-right'>8,600,000.00 g</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1854</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Comprobación de CI/CD: Últimos 10 Registros -->
+        <section class="section-card">
+            <div class="section-title">
+                Comprobación de CI/CD: Últimos 10 Registros del Dataset (tail(10))
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                Visualización de los registros más recientes añadidos al CSV para verificación de despliegue continuo.
+            </p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">ID</th>
+                            <th>Nombre</th>
+                            <th>Clasificación</th>
+                            <th class="text-right">Masa (g)</th>
+                            <th class="text-center">Fall</th>
+                            <th class="text-center">Año</th>
+                            <th class="text-right">Reclat</th>
+                            <th class="text-right">Reclong</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr><td class='text-center'>13015</td><td><strong>Lewis Cliff 86076</strong></td><td><code>H5</code></td><td class='text-right'>23.70</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2503</td><td class='text-right'>161.3837</td></tr>
+<tr><td class='text-center'>13016</td><td><strong>Lewis Cliff 86077</strong></td><td><code>H5</code></td><td class='text-right'>8.60</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2738</td><td class='text-right'>161.6924</td></tr>
+<tr><td class='text-center'>13017</td><td><strong>Lewis Cliff 86078</strong></td><td><code>H5</code></td><td class='text-right'>37.10</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2738</td><td class='text-right'>161.6921</td></tr>
+<tr><td class='text-center'>13018</td><td><strong>Lewis Cliff 86079</strong></td><td><code>H5</code></td><td class='text-right'>6.60</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2497</td><td class='text-right'>161.3842</td></tr>
+<tr><td class='text-center'>13019</td><td><strong>Lewis Cliff 86080</strong></td><td><code>H5</code></td><td class='text-right'>13.50</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2737</td><td class='text-right'>161.6905</td></tr>
+<tr><td class='text-center'>13020</td><td><strong>Lewis Cliff 86081</strong></td><td><code>H5</code></td><td class='text-right'>28.40</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2737</td><td class='text-right'>161.6916</td></tr>
+<tr><td class='text-center'>13021</td><td><strong>Lewis Cliff 86082</strong></td><td><code>LL6</code></td><td class='text-right'>8.30</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2511</td><td class='text-right'>161.3577</td></tr>
+<tr><td class='text-center'>13022</td><td><strong>Lewis Cliff 86083</strong></td><td><code>H5</code></td><td class='text-right'>198.90</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2789</td><td class='text-right'>161.6110</td></tr>
+<tr><td class='text-center'>13023</td><td><strong>Lewis Cliff 86084</strong></td><td><code>L6</code></td><td class='text-right'>53.10</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2737</td><td class='text-right'>161.6909</td></tr>
+<tr><td class='text-center'>13024</td><td><strong>Lewis Cliff 86085</strong></td><td><code>H6</code></td><td class='text-right'>196.90</td><td class='text-center'><span class='badge badge-found'>Found</span></td><td class='text-center'>1986</td><td class='text-right'>-84.2792</td><td class='text-right'>161.6110</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Metadatos de Generación -->
+        <footer>
+            <div>
+                <strong>Fecha y hora de generación:</strong> 2026-11-06 18:16:02
+            </div>
+            <div>
+                <strong>Identificador de Commit:</strong> <span class="commit-tag">Ejecución Local</span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

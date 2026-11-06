@@ -1,0 +1,82 @@
+name: Pipeline CI/CD - Meteoritos
+
+# Disparadores de ejecución:
+# 1. Automáticamente ante cualquier 'push' en la rama 'main'.
+# 2. Manualmente desde la pestaña de Actions en GitHub (workflow_dispatch).
+"on":
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Control de concurrencia para evitar despliegues simultáneos en GitHub Pages
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # =========================================================================
+  # Trabajo 1: Integración Continua (CI) - Verificación, Pruebas y Reporte
+  # =========================================================================
+  CI-Verificacion:
+    name: CI - Verificación y Generación Web
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar el código fuente del repositorio
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      # Paso 2: Configurar el intérprete de Python en la versión requerida (3.10)
+      - name: Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      # Paso 3: Instalar dependencias del proyecto especificadas en requirements.txt
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Paso 4: Ejecutar la suite de pruebas unitarias con pytest
+      - name: Ejecutar pruebas unitarias
+        run: python -m pytest tests/
+
+      # Paso 5: Validar la integridad y consistencia del dataset CSV de meteoritos
+      - name: Validar dataset completo
+        run: python src/validador.py
+
+      # Paso 6: Generar las métricas, gráfico y el portal web en public/
+      - name: Generar informe web
+        run: python src/generador_web.py
+
+      # Paso 7: Subir el contenido de public/ como artefacto listo para GitHub Pages
+      - name: Subir artefacto de GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+  # =========================================================================
+  # Trabajo 2: Despliegue Continuo (CD) - Publicación en GitHub Pages
+  # =========================================================================
+  CD-Publicacion:
+    name: CD - Despliegue en GitHub Pages
+    runs-on: ubuntu-latest
+    needs: CI-Verificacion # Dependencia obligatoria: solo corre si el job de CI fue exitoso
+
+    # Permisos mínimos y específicos requeridos para publicar en GitHub Pages mediante OIDC
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # Paso único de despliegue: Publica el artefacto subido en el paso anterior
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
