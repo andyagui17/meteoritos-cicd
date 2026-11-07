@@ -167,7 +167,7 @@ def generar_html(df: pd.DataFrame, ruta_html: Path) -> None:
     # -------------------------------------------------------------------------
     fecha_generacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     commit_sha = os.environ.get("GITHUB_SHA", "Ejecución Local")
-    estudiante_nombre = os.environ.get("ESTUDIANTE_NOMBRE", "Estudiante de Ingeniería de Software")
+    estudiante_nombre = os.environ.get("ESTUDIANTE_NOMBRE", "Andres Aguirre Cortez")
 
     # -------------------------------------------------------------------------
     # 5. Construcción completa del documento HTML
