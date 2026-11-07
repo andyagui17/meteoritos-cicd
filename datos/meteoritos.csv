@@ -20002,4 +20002,4 @@ id,name,recclass,mass (g),fall,year,reclat,reclong
 99999,Tiquipaya,L6,1500,Found,2026,-17.33,-66.21
 99998,Sacaba,L6,1200,Found,2025,-17.33,-66.21
 123456,FalsoMeteorito,L6,100,Found,2026,-17.33,-66.21
-9999799,ErrorGeo,L6,150,Found,2026,105.00,-66.21
+9999799,ErrorGeo,L6,150,Found,2026,-17.33,-66.27
