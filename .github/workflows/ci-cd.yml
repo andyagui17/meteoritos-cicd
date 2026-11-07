@@ -64,7 +64,7 @@ jobs:
   CD-Publicacion:
     name: CD - Despliegue en GitHub Pages
     runs-on: ubuntu-latest
-    needs: CI-Verificacion # Dependencia obligatoria: solo corre si el job de CI fue exitoso
+    needs: CI-Verificacion  # Dependencia estricta: obliga la ejecución secuencial tras el éxito de CI
 
     # Permisos mínimos y específicos requeridos para publicar en GitHub Pages mediante OIDC
     permissions:
